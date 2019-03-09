@@ -12,6 +12,8 @@
 		6A0978C221F9973600377F9F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6A0978C021F9973600377F9F /* Main.storyboard */; };
 		6A0978C421F9973700377F9F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6A0978C321F9973700377F9F /* Assets.xcassets */; };
 		6A0978C721F9973700377F9F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6A0978C521F9973700377F9F /* LaunchScreen.storyboard */; };
+		6A7C4EA6222AC2FD00A7EEB0 /* UIImageView+GeometryConverison.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A7C4EA5222AC2FD00A7EEB0 /* UIImageView+GeometryConverison.swift */; };
+		6A7C4EA8222BEA4F00A7EEB0 /* Heap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A7C4EA7222BEA4F00A7EEB0 /* Heap.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +24,8 @@
 		6A0978C321F9973700377F9F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6A0978C621F9973700377F9F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6A0978C821F9973700377F9F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6A7C4EA5222AC2FD00A7EEB0 /* UIImageView+GeometryConverison.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+GeometryConverison.swift"; sourceTree = "<group>"; };
+		6A7C4EA7222BEA4F00A7EEB0 /* Heap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Heap.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +64,8 @@
 				6A0978C321F9973700377F9F /* Assets.xcassets */,
 				6A0978C521F9973700377F9F /* LaunchScreen.storyboard */,
 				6A0978C821F9973700377F9F /* Info.plist */,
+				6A7C4EA5222AC2FD00A7EEB0 /* UIImageView+GeometryConverison.swift */,
+				6A7C4EA7222BEA4F00A7EEB0 /* Heap.swift */,
 			);
 			path = "Fingerspelling recognizer";
 			sourceTree = "<group>";
@@ -137,6 +143,8 @@
 			files = (
 				6A0978BF21F9973600377F9F /* ViewController.swift in Sources */,
 				6A0978BD21F9973600377F9F /* AppDelegate.swift in Sources */,
+				6A7C4EA6222AC2FD00A7EEB0 /* UIImageView+GeometryConverison.swift in Sources */,
+				6A7C4EA8222BEA4F00A7EEB0 /* Heap.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,6 +291,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = QB455SPPA7;
 				INFOPLIST_FILE = "Fingerspelling recognizer/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -300,6 +309,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = QB455SPPA7;
 				INFOPLIST_FILE = "Fingerspelling recognizer/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
