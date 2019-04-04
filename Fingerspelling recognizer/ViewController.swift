@@ -10,6 +10,7 @@ import UIKit
 import AVFoundation
 import CoreVideo
 import Photos
+import Vision
 
 class ViewController: UIViewController, AVCaptureDataOutputSynchronizerDelegate {
 
@@ -46,19 +47,28 @@ class ViewController: UIViewController, AVCaptureDataOutputSynchronizerDelegate 
                                                                                mediaType: .video,
                                                                                position: .front)
 
+    private var visionRequest: VNCoreMLRequest!
+
     private var statusBarOrientation: UIInterfaceOrientation = .portrait
 
-    private var depthCutOff: Float = 0.16
+    private var depthCutOff: Float = 0.15
 
     private let imageView = UIImageView()
     private let slider = UISlider()
     private var frame = 3
 
     private let cutOffLabel = UILabel()
+    private let classificationLabel = UILabel()
     let handRect = UIView()
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        let model = try! VNCoreMLModel(for: FingerspellingModel().model)
+        visionRequest = VNCoreMLRequest(model: model, completionHandler: { [weak self] request, error in
+            self?.processClassifications(for: request, error: error)
+        })
+        visionRequest.imageCropAndScaleOption = .scaleFill
 
         // Check video authorization status, video access is required
         switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -84,6 +94,7 @@ class ViewController: UIViewController, AVCaptureDataOutputSynchronizerDelegate 
             setupResult = .notAuthorized
         }
 
+        imageView.transform = CGAffineTransform(rotationAngle: CGFloat.pi)
         view.addSubview(imageView)
         slider.minimumValue = 0.05
         slider.maximumValue = 0.5
@@ -95,6 +106,11 @@ class ViewController: UIViewController, AVCaptureDataOutputSynchronizerDelegate 
         cutOffLabel.textAlignment = .center
         view.addSubview(cutOffLabel)
 
+        classificationLabel.font = UIFont.systemFont(ofSize: 18)
+        classificationLabel.textColor = .blue
+        classificationLabel.numberOfLines = 0
+        view.addSubview(classificationLabel)
+
         handRect.backgroundColor = .clear
         handRect.layer.borderColor = UIColor.green.cgColor
         handRect.layer.borderWidth = 4
@@ -105,6 +121,29 @@ class ViewController: UIViewController, AVCaptureDataOutputSynchronizerDelegate 
 
         sessionQueue.async {
             self.configureSession()
+        }
+    }
+
+    func processClassifications(for request: VNRequest, error: Error?) {
+        DispatchQueue.main.async {
+            guard let results = request.results else {
+                self.classificationLabel.text = "Unable to classify image.\n\(error!.localizedDescription)"
+                return
+            }
+            // The `results` will always be `VNClassificationObservation`s, as specified by the Core ML model in this project.
+            let classifications = results as! [VNClassificationObservation]
+
+            if classifications.isEmpty {
+                self.classificationLabel.text = "Nothing recognized."
+            } else {
+                // Display top classifications ranked by confidence in the UI.
+                let topClassifications = classifications.prefix(2)
+                let descriptions = topClassifications.map { classification in
+                    // Formats the classification for display; e.g. "(0.37) cliff, drop, drop-off".
+                    return String(format: "  (%.2f) %@", classification.confidence, classification.identifier)
+                }
+                self.classificationLabel.text = descriptions.joined(separator: "\n")
+            }
         }
     }
 
@@ -127,6 +166,7 @@ class ViewController: UIViewController, AVCaptureDataOutputSynchronizerDelegate 
         imageView.frame = view.bounds.inset(by: view.safeAreaInsets)
         slider.frame = CGRect(x: 40, y: view.bounds.height - 70, width: view.bounds.width - 80, height: 50)
         cutOffLabel.frame = CGRect(x: 40, y: view.bounds.height - 140, width: view.bounds.width - 80, height: 50)
+        classificationLabel.frame = CGRect(x: 40, y: view.bounds.height - 200, width: view.bounds.width - 80, height: 60)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -513,22 +553,26 @@ class ViewController: UIViewController, AVCaptureDataOutputSynchronizerDelegate 
             }
         }
 
-        var handRect = CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY).insetBy(dx: 0, dy: -10)
+        var handRect = CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
+            .insetBy(dx: 0, dy: -10)
+            .intersection(CGRect(x: 0, y: 0, width: depthWidth, height: depthHeight))
         if handRect.width/handRect.height > 1.5 {
-            handRect.size.width = 1.5 * handRect.height
+            handRect.size.width = (1.5 * handRect.height).rounded()
         }
 
         var grayImage = [UInt8](repeating: 0, count: depthWidth * depthHeight)
+        var classImage = [UInt8](repeating: 0, count: Int(handRect.width * handRect.height))
 
-        for yMap in minY ..< maxY {
+        for yMap in Int(handRect.minY) ..< Int(handRect.maxY) {
             let rowData = CVPixelBufferGetBaseAddress(depthPixelBuffer)! + yMap * CVPixelBufferGetBytesPerRow(depthPixelBuffer)
             let rowIndex = yMap * depthWidth
+            let classRowIndex = (yMap - Int(handRect.minY)) * Int(handRect.width)
             let data = UnsafeMutableBufferPointer<Float32>(start: rowData.assumingMemoryBound(to: Float32.self), count: depthWidth)
-            for index in minX ..< maxX {
+            for index in Int(handRect.minX) ..< Int(handRect.maxX) {
                 if data[index] > 0 && data[index] <= cutOff {
-                    grayImage[rowIndex + index] = UInt8((1 - min(data[index], 1)) * 255)
-                } else {
-                    grayImage[rowIndex + index] = 0
+                    let value = UInt8(max(data[index] - minDepth, 0) / 0.16 * 255)
+                    grayImage[rowIndex + index] = value
+                    classImage[classRowIndex + index - Int(handRect.minX)] = value
                 }
             }
         }
@@ -536,6 +580,32 @@ class ViewController: UIViewController, AVCaptureDataOutputSynchronizerDelegate 
         CVPixelBufferUnlockBaseAddress(depthPixelBuffer, CVPixelBufferLockFlags(rawValue: 0))
 
         let colorspace = CGColorSpaceCreateDeviceGray()
+
+        let classContext = CGContext(data: nil,
+                                width: Int(handRect.width),
+                                height: Int(handRect.height),
+                                bitsPerComponent: 8,
+                                bytesPerRow: Int(handRect.width),
+                                space: colorspace,
+                                bitmapInfo: CGImageAlphaInfo.none.rawValue)!
+        classContext.data?.copyMemory(from: classImage, byteCount: classImage.count)
+
+        let classCGImage = classContext.makeImage()!
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            let handler = VNImageRequestHandler(cgImage: classCGImage, orientation: .leftMirrored)
+            do {
+                try handler.perform([self.visionRequest])
+            } catch {
+                /*
+                 This handler catches general image processing errors. The `classificationRequest`'s
+                 completion handler `processClassifications(_:error:)` catches errors specific
+                 to processing that request.
+                 */
+                print("Failed to perform classification.\n\(error.localizedDescription)")
+            }
+        }
+
         let context = CGContext(data: nil,
                                 width: depthWidth,
                                 height: depthHeight,
