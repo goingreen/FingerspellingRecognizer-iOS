@@ -24,6 +24,10 @@ class CaptureSession: NSObject {
     private let outputSynchronizer: AVCaptureDataOutputSynchronizer
 
     weak var delegate: CaptureSessionDelegate?
+    lazy var previewLayer: AVCaptureVideoPreviewLayer = {
+        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+        return previewLayer
+    }()
 
     override init() {
         captureDevice = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInTrueDepthCamera],
@@ -43,6 +47,7 @@ class CaptureSession: NSObject {
         session.addInput(videoDeviceInput)
         session.addOutput(videoDataOutput)
         videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA)]
+        depthDataOutput.isFilteringEnabled = false
         session.addOutput(depthDataOutput)
         // Search for highest resolution with floating-point depth values
         let depthFormats = captureDevice.activeFormat.supportedDepthDataFormats
@@ -68,6 +73,13 @@ class CaptureSession: NSObject {
 
     func startSession() {
         session.startRunning()
+        let depthConnection = depthDataOutput.connection(with: .depthData)!
+        depthConnection.videoOrientation = .portrait
+        depthConnection.automaticallyAdjustsVideoMirroring = false
+        depthConnection.isVideoMirrored = true
+        let videoOutputConnection = videoDataOutput.connection(with: .video)!
+        videoOutputConnection.videoOrientation = .portrait
+        videoOutputConnection.isVideoMirrored = true
     }
 
     func stopSession() {
