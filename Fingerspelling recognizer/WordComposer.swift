@@ -17,6 +17,8 @@ class WordComposer {
         let letter: String
         let confidence: Confidence
     }
+    
+    private let framesBeforeRecognition = 8
 
     private let bufferSize = 45
     private var currentLetterMeans: [String: Float] = [:]
@@ -44,9 +46,9 @@ class WordComposer {
     }
 
     func addLetterBreak() {
-        guard sampleCount > 8 else { return }
+        guard sampleCount > framesBeforeRecognition else { return }
         let maxConfidenceLetter = currentLetterMeans.max(by: { return $0.value < $1.value })!
-        if maxConfidenceLetter.value > 0.94 - Float(sampleCount) * 0.003 {
+        if maxConfidenceLetter.value > 0.94 - Float(sampleCount) * 0.004 {
             currentWord.append(maxConfidenceLetter.key)
         }
         print(maxConfidenceLetter.key, maxConfidenceLetter.value / Float(sampleCount), sampleCount)
@@ -57,7 +59,7 @@ class WordComposer {
     }
 
     private func updateCurrentLetter() {
-        guard sampleCount > 8 else { return }
+        guard sampleCount > framesBeforeRecognition else { return }
         let maxConfidenceLetter = currentLetterMeans.max(by: { return $0.value < $1.value })!
         let confidence: CurrentLetter.Confidence
         if maxConfidenceLetter.value > 0.94 - Float(sampleCount) * 0.004 {

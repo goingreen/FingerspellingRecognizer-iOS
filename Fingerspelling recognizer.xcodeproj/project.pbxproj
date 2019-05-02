@@ -24,6 +24,7 @@
 		6ACE63702267341F00ACD474 /* WordComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ACE636F2267341F00ACD474 /* WordComposer.swift */; };
 		6ADA0928226912B3006661D4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6ADA0927226912B3006661D4 /* Main.storyboard */; };
 		6AE8C0422263D1E5008A79B4 /* StabilizationDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AE8C0412263D1E5008A79B4 /* StabilizationDetector.swift */; };
+		75C84443227B5567000AA817 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C84442227B5567000AA817 /* Settings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +47,7 @@
 		6ACE636F2267341F00ACD474 /* WordComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordComposer.swift; sourceTree = "<group>"; };
 		6ADA0927226912B3006661D4 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		6AE8C0412263D1E5008A79B4 /* StabilizationDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StabilizationDetector.swift; sourceTree = "<group>"; };
+		75C84442227B5567000AA817 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +95,7 @@
 				6ACE636E2267338500ACD474 /* Support Files */,
 				6ADA0927226912B3006661D4 /* Main.storyboard */,
 				6A328C9A226B734300D0DC24 /* CircularBuffer.swift */,
+				75C84442227B5567000AA817 /* Settings.swift */,
 			);
 			path = "Fingerspelling recognizer";
 			sourceTree = "<group>";
@@ -204,6 +207,7 @@
 				6A328C99226B645700D0DC24 /* fingerspelling_recognizer_new.mlmodel in Sources */,
 				6A7F4445225BE98E00796510 /* CaptureSession.swift in Sources */,
 				6A328C9B226B734300D0DC24 /* CircularBuffer.swift in Sources */,
+				75C84443227B5567000AA817 /* Settings.swift in Sources */,
 				6AB6515A225E6C83001401FA /* DatasetViewController.swift in Sources */,
 				6ACE636D22666D7C00ACD474 /* GestureClassifier.swift in Sources */,
 				6A21D2B4225FD5F100B50793 /* HandTracker.swift in Sources */,
