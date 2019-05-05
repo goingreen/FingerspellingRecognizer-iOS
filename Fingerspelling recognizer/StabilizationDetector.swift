@@ -13,6 +13,12 @@ protocol StabilizationDetectorDelegate: class {
     func sceneStabilityNotAchieved()
 }
 
+enum SceneStabilaztionState {
+    case stable
+    case notStable
+    case deleteChar
+}
+
 class StabilizationDetector {
 
     private let historyLength: Int
@@ -24,8 +30,8 @@ class StabilizationDetector {
 
     weak var delegate: StabilizationDetectorDelegate?
 
-    init(historyLength: Int = 8,
-         stabilityThreshold: CGFloat = 12) {
+    init(historyLength: Int = 4,
+         stabilityThreshold: CGFloat = 8) {
         self.historyLength = historyLength
         self.stabilityThreshold = stabilityThreshold
     }
@@ -66,7 +72,7 @@ class StabilizationDetector {
                 movingAverage.y += $0.y
             }
             let distance = abs(movingAverage.x) + abs(movingAverage.y)
-            //print("stabilization distance: \(movingAverage)")
+            print("stabilization distance: \(movingAverage)")
             if distance < stabilityThreshold {
                 return true
             }

@@ -26,6 +26,7 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
 
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var classificationLabel: UILabel!
+    @IBOutlet weak var resultView: UIView!
     @IBOutlet weak var resultTextView: UITextView!
 
     let handRect = UIView()
@@ -51,10 +52,14 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
         default:
             break
         }
+        resultView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        resultView.layer.cornerRadius = 4
     }
 
     func setupViews() {
 //        view.addSubview(previewView)
+
+        resultTextView.inputView = UIView()
 
         handRect.backgroundColor = .clear
         handRect.layer.borderColor = UIColor.green.cgColor
@@ -68,16 +73,29 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
         //previewView.layer.addSublayer(session.previewLayer)
         session?.startSession()
     }
+    
+    override var canBecomeFirstResponder: Bool {
+        return true
+    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         session?.startSession()
         UIApplication.shared.isIdleTimerDisabled = true
+        becomeFirstResponder()
+        resultTextView.becomeFirstResponder()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         session?.stopSession()
         super.viewWillDisappear(animated)
+    }
+    
+    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+        if motion == .motionShake {
+            wordComposer.removeLastLetter()
+            resultTextView.attributedText = currentAttributedString()
+        }
     }
 
     func didOutputSynchronizedData(syncedDepthData: AVCaptureSynchronizedDepthData, syncedVideoData: AVCaptureSynchronizedSampleBufferData) {
@@ -97,7 +115,7 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
                     self.imageView.image = image
                 }
             }
-            wordComposer.addLetterBreak()
+            wordComposer.clearClassifications()
             return
         }
 
@@ -185,7 +203,7 @@ extension RecognitionViewController: GestureClassifierDelegate {
     }
 
     func currentAttributedString() -> NSAttributedString {
-        let attrString = NSMutableAttributedString(string: wordComposer.currentWord.uppercased(),
+        let attrString = NSMutableAttributedString(string: wordComposer.currentText.uppercased(),
                                                    attributes: [.font: UIFont.systemFont(ofSize: 24, weight: .semibold)])
         if let currentLetter = wordComposer.currentLetter {
             let currentLetterColor: UIColor
