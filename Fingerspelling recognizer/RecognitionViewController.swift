@@ -113,6 +113,7 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
                 let image = UIImage(cgImage: cgImage, scale: 1, orientation: .up)
                 DispatchQueue.main.async {
                     self.imageView.image = image
+                    self.handRect.isHidden = true
                 }
             }
             wordComposer.clearClassifications()
@@ -124,7 +125,7 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
 
         CVPixelBufferLockBaseAddress(depthPixelBuffer, CVPixelBufferLockFlags(rawValue: 0))
 
-        let (handRect, minDepth) = handTracker.handRect(in: depthPixelBuffer, depthCutOff: depthCutOff)
+        var (handRect, minDepth) = handTracker.handRect(in: depthPixelBuffer, depthCutOff: depthCutOff)
         let cutOff = minDepth + depthCutOff
         
         var grayImage = [UInt8](repeating: 0, count: depthWidth * depthHeight)
@@ -162,20 +163,32 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
 
         let colorspace = CGColorSpaceCreateDeviceGray()
 
-        let context = CGContext(data: nil,
-                                width: depthWidth,
-                                height: depthHeight,
-                                bitsPerComponent: 8,
-                                bytesPerRow: depthWidth,
-                                space: colorspace,
-                                bitmapInfo: CGImageAlphaInfo.none.rawValue)!
-        context.data?.copyMemory(from: grayImage, byteCount: depthHeight * depthWidth)
-
-        let cgImage = context.makeImage()!
-        let image = UIImage(cgImage: cgImage, scale: 1, orientation: .up)
-        DispatchQueue.main.async {
-            self.imageView.image = image
-            self.handRect.frame = self.imageView.convertRect(fromImageRect: handRect)
+        var cgImage: CGImage?
+        if Settings.debugMode {
+            let context = CGContext(data: nil,
+                                    width: depthWidth,
+                                    height: depthHeight,
+                                    bitsPerComponent: 8,
+                                    bytesPerRow: depthWidth,
+                                    space: colorspace,
+                                    bitmapInfo: CGImageAlphaInfo.none.rawValue)!
+            context.data?.copyMemory(from: grayImage, byteCount: depthHeight * depthWidth)
+            cgImage = context.makeImage()!
+        } else {
+            VTCreateCGImageFromCVPixelBuffer(videoPixelBuffer, options: nil, imageOut: &cgImage)
+        }
+        
+        if let cgImage = cgImage {
+            let image = UIImage(cgImage: cgImage, scale: 1, orientation: .up)
+            handRect.origin.x *= image.size.width / CGFloat(depthWidth)
+            handRect.origin.y *= image.size.height / CGFloat(depthHeight)
+            handRect.size.height *= image.size.height / CGFloat(depthHeight)
+            handRect.size.width *= image.size.width / CGFloat(depthWidth)
+            DispatchQueue.main.async {
+                self.imageView.image = image
+                self.handRect.isHidden = false
+                self.handRect.frame = self.imageView.convertRect(fromImageRect: handRect)
+            }
         }
     }
 }

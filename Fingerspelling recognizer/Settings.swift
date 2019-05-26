@@ -29,4 +29,13 @@ class Settings {
             storage.set(newValue, forKey: "framesBeforeRecongition")
         }
     }
+    
+    static var debugMode: Bool {
+        get {
+            return storage.bool(forKey: "debugMode")
+        }
+        set {
+            storage.set(newValue, forKey: "debugMode")
+        }
+    }
 }

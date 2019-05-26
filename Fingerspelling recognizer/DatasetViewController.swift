@@ -42,6 +42,7 @@ class DatasetViewController: UIViewController, CaptureSessionDelegate {
     var signerId: Int = 1
     let signerIdLabel = UILabel()
     let signerIdStepper = UIStepper()
+    let doneButton = UIButton(type: .system)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -99,6 +100,16 @@ class DatasetViewController: UIViewController, CaptureSessionDelegate {
         handRect.layer.borderColor = UIColor.green.cgColor
         handRect.layer.borderWidth = 4
         imageView.addSubview(handRect)
+        
+        doneButton.setTitle("Done", for: .normal)
+        doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
+        doneButton.tintColor = .white
+        view.addSubview(doneButton)
+    }
+    
+    @objc
+    func doneButtonTapped() {
+        dismiss(animated: true, completion: nil)
     }
 
     @objc
@@ -143,6 +154,7 @@ class DatasetViewController: UIViewController, CaptureSessionDelegate {
         stepper.frame = CGRect(x: 20, y: view.bounds.height - 80, width: 60, height: 50)
         signerIdLabel.frame = CGRect(x: view.bounds.width - 100, y: view.bounds.height - 130, width: 100, height: 50)
         signerIdStepper.frame = CGRect(x: view.bounds.width - 100, y: view.bounds.height - 80, width: 60, height: 50)
+        doneButton.frame = CGRect(x: view.bounds.width - 128, y: 20, width: 100, height: 32)
     }
 
     override func viewWillAppear(_ animated: Bool) {

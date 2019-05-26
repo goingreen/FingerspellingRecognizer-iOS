@@ -21,6 +21,14 @@ class DebugViewController: UITableViewController {
 }
 
 extension DebugViewController {
+    
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.row == 1 {
+            cell.accessoryType = Settings.autodetectHand ? .checkmark : .none
+        } else if indexPath.row == 2 {
+            cell.accessoryType = Settings.debugMode ? .checkmark : .none
+        }
+    }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.row == 0 {
@@ -28,11 +36,20 @@ extension DebugViewController {
             present(datasetController, animated: true, completion: nil)
         } else {
             let cell = tableView.cellForRow(at: indexPath)!
+            var newValue = false
             if cell.accessoryType == .checkmark {
                 cell.accessoryType = .none
+                newValue = false
             } else {
                 cell.accessoryType = .checkmark
+                newValue = true
+            }
+            if indexPath.row == 1 {
+                Settings.autodetectHand = newValue
+            } else {
+                Settings.debugMode = newValue
             }
         }
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 }
