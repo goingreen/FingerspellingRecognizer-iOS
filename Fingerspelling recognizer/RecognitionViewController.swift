@@ -112,11 +112,11 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
             if let cgImage = cgImage {
                 let image = UIImage(cgImage: cgImage, scale: 1, orientation: .up)
                 DispatchQueue.main.async {
+                    self.wordComposer.clearClassifications()
                     self.imageView.image = image
                     self.handRect.isHidden = true
                 }
             }
-            wordComposer.clearClassifications()
             return
         }
 
@@ -204,8 +204,8 @@ extension RecognitionViewController: StabilizationDetectorDelegate {
 
 extension RecognitionViewController: GestureClassifierDelegate {
     func recognized(results: [String: Float]) {
-        wordComposer.add(classifications: results)
         DispatchQueue.main.async {
+            self.wordComposer.add(classifications: results)
             let topClassifications = results.map { ($0.key, $0.value) }.sorted(by: { return $0.1 > $1.1 }).prefix(2)
             let descriptions = topClassifications.map { (identifier, confidence) in
                 return String(format: "  (%.2f) %@", confidence, identifier)

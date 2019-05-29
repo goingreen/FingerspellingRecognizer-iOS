@@ -18,6 +18,9 @@ class WordComposer {
         let confidence: Confidence
     }
     
+    private let alternateSymbols = ["2": "V",
+                                    "6": "W"]
+    
     private let framesBeforeRecognition = 8
     private let framesBetweenSameResults = 36
 
@@ -71,8 +74,7 @@ class WordComposer {
             if let lastChar = currentText.last, String(lastChar) == maxConfidenceLetter.key, sampleCount < framesBetweenSameResults {
                 return
             }
-            currentText.append(maxConfidenceLetter.key)
-            clearClassifications()
+            append(letter: maxConfidenceLetter.key)
         } else if maxConfidenceLetter.value > 0.4 {
             let confidence: CurrentLetter.Confidence
             if maxConfidenceLetter.value > 0.6 {
@@ -89,6 +91,31 @@ class WordComposer {
                 resetSpaceThrottler()
             }
         }
+    }
+    
+    private func append(letter: String) {
+        defer { clearClassifications() }
+        guard let lastSymbol = currentText.last.map(String.init) else {
+            currentText.append(letter)
+            return
+        }
+        
+        let currentSymbol: String
+        if let alternateLetter = alternateSymbols[letter] {
+            if lastSymbol == " " || Int(lastSymbol) != nil {
+                currentSymbol = letter
+            } else {
+                currentSymbol = alternateLetter
+            }
+        } else {
+            currentSymbol = letter
+        }
+        
+        if let lastSymbolAlternate = alternateSymbols[lastSymbol], Int(currentSymbol) == nil {
+            currentText.removeLast()
+            currentText.append(lastSymbolAlternate)
+        }
+        currentText.append(currentSymbol)
     }
     
     private func resetSpaceThrottler() {
