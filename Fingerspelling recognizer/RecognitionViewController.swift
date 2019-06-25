@@ -80,6 +80,7 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        handTracker.automatic = Settings.autodetectHand
         session?.startSession()
         UIApplication.shared.isIdleTimerDisabled = true
         becomeFirstResponder()

@@ -31,7 +31,7 @@ class StabilizationDetector {
     weak var delegate: StabilizationDetectorDelegate?
 
     init(historyLength: Int = 4,
-         stabilityThreshold: CGFloat = 8) {
+         stabilityThreshold: CGFloat = 10) {
         self.historyLength = historyLength
         self.stabilityThreshold = stabilityThreshold
     }

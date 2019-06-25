@@ -53,10 +53,10 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4oo-hY-vIh">
-                                <rect key="frame" x="287" y="28" width="72" height="33"/>
+                                <rect key="frame" x="279" y="28" width="80" height="44"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="72" id="8VC-yH-jLn"/>
-                                    <constraint firstAttribute="height" constant="33" id="f1B-V4-Off"/>
+                                    <constraint firstAttribute="width" constant="80" id="8VC-yH-jLn"/>
+                                    <constraint firstAttribute="height" constant="44" id="f1B-V4-Off"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
                                 <state key="normal" title="Debug">

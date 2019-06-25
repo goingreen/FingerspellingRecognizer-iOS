@@ -25,7 +25,7 @@ class WordComposer {
     private let framesBetweenSameResults = 36
 
     private let bufferSize = 45
-    private let spaceThrottler = Throttler(seconds: 1.6)
+    private let spaceThrottler = Throttler(seconds: 1.2)
     private var currentLetterMeans: [String: Float] = [:]
     private var currentLetterResults: [String: CircularBuffer<Float>] = [:]
     private var sampleCount: Int = 0

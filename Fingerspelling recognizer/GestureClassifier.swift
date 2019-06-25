@@ -22,7 +22,7 @@ class GestureClassifier {
     weak var delegate: GestureClassifierDelegate?
 
     init() {
-        let model = try! VNCoreMLModel(for: fingerspelling_recognizer_new().model)
+        let model = try! VNCoreMLModel(for: FingerspellingRecognizer().model)
         visionRequest = VNCoreMLRequest(model: model, completionHandler: { [weak self] request, error in
             self?.processClassifications(for: request, error: error)
         })
