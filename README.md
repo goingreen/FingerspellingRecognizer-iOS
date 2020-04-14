@@ -1,4 +1,4 @@
-# FingerspellingRecognizer
+# Fingerspelling Recognizer
 ## iOS app for American Sign Language(ASL) recognition
 
 ### Requirements
