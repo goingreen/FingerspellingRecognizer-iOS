@@ -137,7 +137,7 @@ public struct Heap<T> {
 extension Heap where T: Equatable {
 
     public func index(of node: T) -> Int? {
-        return nodes.index(where: { $0 == node })
+        return nodes.firstIndex(where: { $0 == node })
     }
 
     @discardableResult public mutating func remove(node: T) -> T? {

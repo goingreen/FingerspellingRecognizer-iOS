@@ -8,11 +8,6 @@
 
 import Vision
 
-protocol StabilizationDetectorDelegate: class {
-    func sceneStabilityAchieved(at frame: CVPixelBuffer)
-    func sceneStabilityNotAchieved()
-}
-
 enum SceneStabilaztionState {
     case stable
     case notStable
@@ -27,8 +22,6 @@ class StabilizationDetector {
     private let sequenceRequestHandler = VNSequenceRequestHandler()
     private var transpositionHistoryPoints: [CGPoint] = []
     private var previousFrame: CVPixelBuffer?
-
-    weak var delegate: StabilizationDetectorDelegate?
 
     init(historyLength: Int = 4,
          stabilityThreshold: CGFloat = 10) {
@@ -55,10 +48,7 @@ class StabilizationDetector {
             let alignmentTransform = alignmentObservation.alignmentTransform
             add(transposition: CGPoint(x: alignmentTransform.tx, y: alignmentTransform.ty))
             if sceneStabilityAchieved() {
-                delegate?.sceneStabilityAchieved(at: newFrame)
                 return true
-            } else {
-                delegate?.sceneStabilityNotAchieved()
             }
         }
         return false
@@ -72,7 +62,6 @@ class StabilizationDetector {
                 movingAverage.y += $0.y
             }
             let distance = abs(movingAverage.x) + abs(movingAverage.y)
-            print("stabilization distance: \(movingAverage)")
             if distance < stabilityThreshold {
                 return true
             }

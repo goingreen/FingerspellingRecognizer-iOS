@@ -36,7 +36,6 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
         super.viewDidLoad()
         setupViews()
 
-        stabilizationDetector.delegate = self
         classifier.delegate = self
 
         // Check video authorization status, video access is required
@@ -57,8 +56,6 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
     }
 
     func setupViews() {
-//        view.addSubview(previewView)
-
         resultTextView.inputView = UIView()
 
         handRect.backgroundColor = .clear
@@ -70,7 +67,6 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
     func setupSession() {
         session = CaptureSession()
         session?.delegate = self
-        //previewView.layer.addSublayer(session.previewLayer)
         session?.startSession()
     }
     
@@ -150,15 +146,19 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
 
         let classColorspace = CGColorSpaceCreateDeviceGray()
 
-        if let classContext = CGContext(data: nil,
-                                           width: Int(handRect.width),
-                                           height: Int(handRect.height),
-                                           bitsPerComponent: 8,
-                                           bytesPerRow: Int(handRect.width),
-                                           space: classColorspace,
-                                           bitmapInfo: CGImageAlphaInfo.none.rawValue) {
-            classContext.data?.copyMemory(from: classImage, byteCount: classImage.count)
-            let classCGImage = classContext.makeImage()!
+        if classImage.count > 0 {
+            let classCGImage = classImage.withUnsafeMutableBytes { ptr -> CGImage in
+                let context = CGContext(
+                    data: ptr.baseAddress,
+                    width: Int(handRect.width),
+                    height: Int(handRect.height),
+                    bitsPerComponent: 8,
+                    bytesPerRow: Int(handRect.width),
+                    space: classColorspace,
+                    bitmapInfo: CGImageAlphaInfo.none.rawValue
+                )!
+                return context.makeImage()!
+            }
             self.classifier.recognize(image: classCGImage)
         }
 
@@ -166,15 +166,18 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
 
         var cgImage: CGImage?
         if Settings.debugMode {
-            let context = CGContext(data: nil,
-                                    width: depthWidth,
-                                    height: depthHeight,
-                                    bitsPerComponent: 8,
-                                    bytesPerRow: depthWidth,
-                                    space: colorspace,
-                                    bitmapInfo: CGImageAlphaInfo.none.rawValue)!
-            context.data?.copyMemory(from: grayImage, byteCount: depthHeight * depthWidth)
-            cgImage = context.makeImage()!
+            cgImage = grayImage.withUnsafeMutableBytes { ptr -> CGImage in
+                let context = CGContext(
+                    data: ptr.baseAddress,
+                    width: depthWidth,
+                    height: depthHeight,
+                    bitsPerComponent: 8,
+                    bytesPerRow: depthWidth,
+                    space: colorspace,
+                    bitmapInfo: CGImageAlphaInfo.none.rawValue
+                )!
+                return context.makeImage()!
+            }
         } else {
             VTCreateCGImageFromCVPixelBuffer(videoPixelBuffer, options: nil, imageOut: &cgImage)
         }
@@ -191,15 +194,6 @@ class RecognitionViewController: UIViewController, CaptureSessionDelegate {
                 self.handRect.frame = self.imageView.convertRect(fromImageRect: handRect)
             }
         }
-    }
-}
-
-extension RecognitionViewController: StabilizationDetectorDelegate {
-    func sceneStabilityAchieved(at frame: CVPixelBuffer) {
-
-    }
-
-    func sceneStabilityNotAchieved() {
     }
 }
 
