@@ -5,3 +5,5 @@
 * Xcode 11.4
 * iOS 12.1
 * Front TrueDepth camera (iPhone X or newer)
+
+![Screenshot](screenshot.jpeg)
