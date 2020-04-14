@@ -1,5 +1,5 @@
 # Fingerspelling Recognizer
-## iOS app for American Sign Language(ASL) recognition
+## iOS app for American Sign Language(ASL) fingerspelling recognition
 
 ### Requirements
 * Xcode 11.4
